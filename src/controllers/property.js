@@ -1,27 +1,34 @@
+import { poll } from "../../database/dbmysql.js";
 
 // get all properties
-const getAllProperty = () => {
+const getAllProperty = async (req, res) => {
+  try {
+    const [data] = await poll.query("SELECT * FROM users ");
 
+    if (data.length <= 0) return res.sendStatus(404);
+
+    res.send(200).json({ usuarios: data });
+  } catch (err) {
+    return res.status(404).json({ err: err.menssage });
+  }
 };
 
 // get a property
-const getIdProperty = () => {
-    
-};
+const getIdProperty = () => {};
 
 // create a new property
-const createProperty = () => {
-    
-};
+const createProperty = () => {};
 
 // update a property
-const updateProperty = () => {
-    
-};
+const updateProperty = () => {};
 
 // delete a property
-const deleteProperty = () => {
-    
-};
+const deleteProperty = () => {};
 
-export { createProperty, deleteProperty, getAllProperty, getIdProperty, updateProperty };
+export {
+  createProperty,
+  deleteProperty,
+  getAllProperty,
+  getIdProperty,
+  updateProperty,
+};
