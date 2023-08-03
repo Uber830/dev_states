@@ -8,10 +8,7 @@ const poll = createPool({
   host: DB_HOST,
   database: DB_NAME,
   user: DB_USER,
-  password: DB_PASSWORD,
-  /* ssl: {
-    rejectUnauthorized: false,
-  }, */
+  password: DB_PASSWORD
 });
 
 
