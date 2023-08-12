@@ -3,10 +3,27 @@ import Ajv from "ajv";
 import addErrors from "ajv-errors";
 import addFormats from "ajv-formats";
 
-//const passwordRegEx = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-const registerSchema = Type.Object(
+const userUpdateSchema = Type.Object(
   {
+    cc: Type.Number({
+      minimum: 10,
+      maximum: 10,
+      errorMessage: {
+        type: "The type cc is format number",
+        minLength: "The type must have a minimum length of 10",
+        maxLength: "The type must have a maximum length of 10",
+      },
+    }),
     firtsname: Type.String({
+      minLength: 5,
+      maxLength: 50,
+      errorMessage: {
+        type: "The type characteristic is format string",
+        minLength: "The type must have a minimum length of 5",
+        maxLength: "The type must have a maximum length of 50",
+      },
+    }),
+    lastname: Type.String({
       minLength: 5,
       maxLength: 50,
       errorMessage: {
@@ -19,9 +36,9 @@ const registerSchema = Type.Object(
       format: "email",
       errorMessage: {
         type: "The type email is format string",
-        format: "email address is required",
+        format: "Email address is required",
       },
-    }), //solo letras,numeros, mininum 6
+    }),
     password: Type.String({
       format: "password",
       pattern: "^[a-zA-Z0-9]+$",
@@ -33,15 +50,6 @@ const registerSchema = Type.Object(
         pattern: "Solo letras y números de 0 - 9",
       },
     }),
-    id_role: Type.Integer({
-      minimum: 1,
-      maximum: 3,
-      errorMessage: {
-        type: "The type characteristic is format string",
-        minimum: "The type must have a minimum of 2",
-        maximum: "The type must have a maximum of 3",
-      },
-    }),
   },
   {
     additionalProperties: false,
@@ -51,28 +59,37 @@ const registerSchema = Type.Object(
       required: {
         firtsname: "El firtsname es requerido",
         email: "El email es requerido",
-        password: "The password is required",
-        id_role: "The id role is required",
+        password: "El password es requerido",
       },
     },
   }
 );
 
-const ajv = new Ajv({ allErrors: true }); // instantiate ajv
+const ajv = new Ajv({ allErrors: true });
 addFormats(ajv, ["email", "password"]);
 addErrors(ajv);
 
-const validate = ajv.compile(registerSchema);
+const validate = ajv.compile(userUpdateSchema);
 
-const registerValidate = (req, res, next) => {
-  const isDtoValid = validate(req.body);
+/**
+ * This middleware is responsible for verifying if the user inserted
+ * the data in form correctly.
+ * @param {Object} req
+ * @param {String} res
+ * @param {*} next
+ * @returns Error message or access the next method.
+ */
 
-  if (!isDtoValid)
+const userValidate = (req, res, next) => {
+  const isUserByUpdate = validate(req?.body);
+
+  if (!isUserByUpdate) {
     return res
-      .status(400)
+      .status(404)
       .send(ajv.errorsText(validate.errors, { separator: "\n" }));
+  }
 
   next();
 };
 
-export { registerValidate };
+export { userValidate };
