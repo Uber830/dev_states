@@ -14,8 +14,14 @@ const loginDtoSchema = Type.Object(
       },
     }),
     password: Type.String({
+      format: "password",
+      pattern: "^[a-zA-Z0-9]+$",
+      minLength: 6,
       errorMessage: {
-        type: "The password type is format string",
+        type: "El tipo de password debe ser una cadena.",
+        format: "El formato de password es inválido",
+        minLength: "The type must have a minimum length of 6",
+        pattern: "Solo letras y números de 0 - 9",
       },
     }),
   },
@@ -33,7 +39,7 @@ const loginDtoSchema = Type.Object(
 );
 
 const ajv = new Ajv({ allErrors: true });
-addFormats(ajv, ["email"]);
+addFormats(ajv, ["email", "password"]);
 addErrors(ajv);
 const validate = ajv.compile(loginDtoSchema);
 
