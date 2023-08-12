@@ -1,13 +1,15 @@
 import { poll } from "../../database/dbmysql.js";
 
 /**
- * validamos si el usuario existe en nuestra base de datos dependiendo de ello
- * se responde con un mensaje o dandole acceso a siguiente metodo en ejecución.
+ * Verifies that the user not exists in the database,
+ * if exists access the endpoint or return a message of error.
  *
- * @param {*} req Datos obtenidos del usuario o del middleware anterior
- * @param {*} res Valores a enviar al controlador
- * @param {*} next Siguiente
+ * @param {Object} req All data from the user and browser session
+ * @param {String} res
+ * @param {*} next
+ * @returns Error message or access the next method.
  */
+
 const validateIdUser = async (req, res, next) => {
   const { id } = req?.params;
 

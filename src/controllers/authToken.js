@@ -7,37 +7,57 @@ import { hashPassword } from "../helpers/verifypassword.js";
 const authTokenlogin = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) return res.sendStatus(400);
-
   try {
-    const { id } = await authByEmailPwd(email, password);
-    if(!id) return res.sendStatus(400);
+    const { id, rol } = await authByEmailPwd(email, password);
+
+    if (!id || !rol) {
+      throw new Error("Invalid email or password value");
+    }
+
+    const [data] = await poll.query(
+      `SELECT role FROM users INNER JOIN roles ON users.id_role = roles.id
+      WHERE users.id = (?) AND users.id_role = (?)`,
+      [id, rol]
+    );
+
+    if (data.length < 0) {
+      throw new Error("Error access to the role");
+    }
+    const roldb = data[0]?.role;
 
     // generate tokend
-    const jwtConstructor = new SignJWT({ id });
+    const jwtConstructor = new SignJWT({ id, roldb });
 
+    // send with jwt the role
     const encoder = new TextEncoder(); // transform secret key
     const jwt = await jwtConstructor // generate jwt
       .setProtectedHeader({
         alg: "HS256",
         typ: "JWT",
       })
+
       .setIssuedAt()
       .setExpirationTime("2h")
       .sign(encoder.encode(process.env.JWT_PRIVATE_KEY));
 
-    return res.send({ jwt });
+    const [rows] = await poll.query(
+      "INSERT INTO login (id_user) VALUES (?)",
+      id
+    );
+
+    if (rows.affectedRows !== 1) {
+      throw new Error("Invalid registered of user");
+    }
+
+    res.send({ jwt });
   } catch (err) {
-    return res.status(401).send("Invalid login credentials");
+    res.status(401).send(`Invalid login credentials ${err}`);
   }
 };
 
-// TODO: implement middleware validation for users created
 // Register
 const registerUser = async (req, res) => {
-  const { firtsname, password, email } = req.body;
-
-  if (!firtsname || !password || !email) return res.sendStatus(404);
+  const { firtsname, password, email, id_role } = req.body;
 
   try {
     const [data] = await poll.query(
@@ -55,14 +75,14 @@ const registerUser = async (req, res) => {
     const hash = await hashPassword(password);
 
     const [rows] = await poll.query(
-      "INSERT INTO users (firtsname,email,password) VALUES (?,?,?)",
-      [firtsname, email, hash]
+      "INSERT INTO users (firtsname,email,password,id_role) VALUES (?,?,?,?)",
+      [firtsname, email, hash, id_role]
     );
 
     if (rows?.affectedRows != 1) return res.sendStatus(404);
-    return res.status(201).send("Created");
+    res.status(201).send("Created");
   } catch (err) {
-    return res.status(404).send(err.message);
+    res.status(404).send(err.message);
   }
 };
 

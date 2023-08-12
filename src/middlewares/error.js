@@ -1,1 +1,0 @@
-// this middleware validates if exist errors and returns messages/code error
