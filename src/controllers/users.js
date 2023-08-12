@@ -4,14 +4,14 @@ import { hashPassword } from "../helpers/verifypassword.js";
 // Search all users in the database
 const getAllUsers = async (req, res) => {
   try {
-    const [data] = await poll.query("SELECT * FROM users");
+    const [data] = await poll.query("SELECT * FROM users"); // not returning a password
 
     if (data.length <= 0)
       return res.status(404).send("Not found the search in users");
 
-    return res.status(200).json({ users: data });
+    res.status(200).json({ users: data });
   } catch (erro) {
-    return res.status(404).json({ message: [] });
+    res.status(404).json({ message: [] });
   }
 };
 
@@ -25,40 +25,38 @@ const getIdUsers = async (req, res) => {
       Number(id)
     );
 
-    if (Boolean(data.length) != true)
-      return res.status(404).send("Not contend users");
+    if (Boolean(data.length) != true) {
+      throw new Error("Not contend users");
+    }
 
-    return res.status(200).json({ users: data });
+    res.status(200).json({ users: data });
   } catch (err) {
-    return res.status(404).json({ message: [] });
+    res.status(404).json({ message: [] });
   }
 };
 
 // Create a new user
 const createUsers = async (req, res) => {
-  const { email, password } = req?.body;
-
-  if (!email || !password) return res.sendStatus(404);
+  const { cc, firtsname, lastname, email, password } = req?.body;
 
   try {
     const hash = await hashPassword(password); // generate hash
 
     const [rows] = await poll.query(
-      "INSERT INTO users (email,password) VALUES (?, ?)",
-      [email, hash]
+      "INSERT INTO users (cc,firtsname,lastname,email,password) VALUES (?,?,?,?,?)",
+      [cc, firtsname, lastname, email, hash]
     );
 
     if (rows.affectedRows != 1) {
       throw new Error("Error while trying to create new user");
     }
 
-    return res.status(201).json({ result: "user created successfully" });
+    res.status(201).json({ result: "user created successfully" });
   } catch (err) {
-    return res.status(400).json({ message: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
 
-// FIXME:Generate DTO for this endpoint
 // Update user profile
 const updateUsers = async (req, res) => {
   const { id } = req?.params;
@@ -79,7 +77,7 @@ const updateUsers = async (req, res) => {
 
     res.status(202).json({ result: "user update successfully" });
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -93,9 +91,10 @@ const deleteUsers = async (req, res) => {
     if (rows?.affectedRows !== 1) {
       throw new Error("User not deleted, exist warnings");
     }
-    return res.sendStatus(204);
+
+    res.sendStatus(204);
   } catch (err) {
-    return res.status(404).send({ message: err.message });
+    res.status(404).send({ message: err.message });
   }
 };
 

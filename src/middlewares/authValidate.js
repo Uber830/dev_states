@@ -9,7 +9,7 @@ const verifyAuth = async (req, res, next) => {
   const { authorization } = req?.headers;
 
   try {
-    if (authorization === 'undefined')
+    if (authorization === "undefined")
       return new Error(`Invalid authorization header`);
 
     const encoder = new TextEncoder();
@@ -17,8 +17,6 @@ const verifyAuth = async (req, res, next) => {
       authorization,
       encoder.encode(process.env.JWT_PRIVATE_KEY)
     );
-
-    //if (!payload) return res.status(401).json({ mensaje: "Token inválido" });
 
     req.dataUsuario = payload;
 
