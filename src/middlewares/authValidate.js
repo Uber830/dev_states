@@ -12,9 +12,17 @@ const verifyAuth = async (req, res, next) => {
     if (authorization === "undefined")
       return new Error(`Invalid authorization header`);
 
+    // validate the length of the authorization
+    const authorizationLength = (authorization = String) => {
+      if (authorization.length !== 159) {
+        return (authorization = authorization.split(" ").at(-1)); // access token of authorization
+      }
+      return authorization;
+    };
+
     const encoder = new TextEncoder();
     const { payload } = await jwtVerify(
-      authorization,
+      authorizationLength(authorization),
       encoder.encode(process.env.JWT_PRIVATE_KEY)
     );
 
