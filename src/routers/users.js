@@ -3,7 +3,11 @@ import {getAllUsers,getIdUsers,createUsers,updateUsers,deleteUsers} from "../con
 import { verifyAuth } from "../middlewares/authValidate.js";
 import { validateIdUser } from "../middlewares/validateIdUser.js";
 import { userValidate } from "../DTO/userValidate.js";
+import { userValidateCreatings } from "../DTO/userValidateCreatings.js";
 import { authRole } from "../middlewares/authRole.js";
+import { validateUploadFiles } from "../middlewares/validateUploadFiles.js";
+
+import fileUpload from "express-fileupload";
 
 const userRouter = Router();
 
@@ -57,6 +61,8 @@ const userRouter = Router();
  *        date_update: 2023-08-08T04:25:54.000Z
  */
 
+// FIXME: acomodar ideas para poder tratar images, que el cliente nos envie 
+// si desde el get o update, las dos y tambien el 'id_role'.
 /**
  * @swagger
  * components:
@@ -74,7 +80,7 @@ const userRouter = Router();
  *          type: string
  *          description: lastname of the user
  *        image_profile:
- *          type: string
+ *          type: number
  *          description: image profile of the user
  *        email: 
  *          type: string   
@@ -175,7 +181,7 @@ userRouter.get("/all", verifyAuth, authRole(["admin"]), getAllUsers);
  *       - in: path
  *         name: id  
  *         required: true  
- *         shcema:
+ *         schema:
  *           type: integer
  *           minimun: 1
  *           description: The ID of the user
@@ -220,8 +226,8 @@ userRouter.get("/:id", verifyAuth, getIdUsers);
  *         description: some server error
  */
 
-userRouter.post("/create", verifyAuth, authRole(["admin"]), userValidate, createUsers);
-
+userRouter.post("/create", verifyAuth, authRole(["admin"]), userValidateCreatings, createUsers);
+// FIXME: agregar image_profile en la documentacion de swagger
 /**
  * @swagger
  * /api/users/update/{id}:
@@ -256,7 +262,8 @@ userRouter.post("/create", verifyAuth, authRole(["admin"]), userValidate, create
  *         description:  some server error
  */
 
-userRouter.patch("/update/:id",verifyAuth, userValidate, validateIdUser, updateUsers);
+userRouter.patch("/update/:id",verifyAuth, userValidate, validateIdUser, fileUpload({
+  useTempFiles: true,tempFileDir: "./uploads",}), validateUploadFiles, updateUsers);
 
 /**
  * @swagger
@@ -276,7 +283,7 @@ userRouter.patch("/update/:id",verifyAuth, userValidate, validateIdUser, updateU
  *     tags: [Users]
  *     responses:
  *       204:
- *         description: Returns message of delete with existing 
+ *         description: User successfully deleted
  *       500: 
  *         description: some server error
  */
