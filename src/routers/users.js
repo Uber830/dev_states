@@ -6,6 +6,7 @@ import { userValidate } from "../DTO/userValidate.js";
 import { userValidateCreatings } from "../DTO/userValidateCreatings.js";
 import { authRole } from "../middlewares/authRole.js";
 import { validateUploadFiles } from "../middlewares/validateUploadFiles.js";
+import { propertyUpdateValidate } from "../middlewares/validatePropertyUpdate.js";
 
 import fileUpload from "express-fileupload";
 
@@ -262,8 +263,8 @@ userRouter.post("/create", verifyAuth, authRole(["admin"]), userValidateCreating
  *         description:  some server error
  */
 
-userRouter.patch("/update/:id",verifyAuth, userValidate, validateIdUser, fileUpload({
-  useTempFiles: true,tempFileDir: "./uploads",}), validateUploadFiles, updateUsers);
+userRouter.patch("/update/:id",verifyAuth, validateIdUser, fileUpload({
+  useTempFiles: true,tempFileDir: "./uploads",}), userValidate, validateUploadFiles, updateUsers);
 
 /**
  * @swagger

@@ -1,13 +1,14 @@
 import { poll } from "../../database/dbmysql.js";
 import fs from "fs-extra";
 import { hashPassword } from "../helpers/verifypassword.js";
-import { uploadImage, deleteImage } from "../helpers/cloudinary.js";
+import { uploadImage } from "../helpers/cloudinary.js";
+import { deleteImageCloud } from "../helpers/deleteImageCloud.js";
 
 // Search all users in the database
 const getAllUsers = async (req, res) => {
   try {
     const [data] = await poll.query(
-      "SELECT id,cc,firtsname,lastname,image_profile,email,id_role,date_create,date_update FROM users"
+      "SELECT id,cc,firtsname,lastname,image_url,email,id_role,date_create,date_update FROM users"
     ); // not returning a password
 
     if (data.length <= 0)
@@ -25,7 +26,7 @@ const getIdUsers = async (req, res) => {
 
   try {
     const [data] = await poll.query(
-      "SELECT cc,firtsname,lastname,image_profile,email,id_role,date_create,date_update FROM users WHERE id = (?) AND state = 'activo'",
+      "SELECT cc,firtsname,lastname,image_url,email,id_role,date_create,date_update FROM users WHERE id = (?)",
       Number(id)
     );
 
@@ -67,15 +68,24 @@ const updateUsers = async (req, res) => {
   const { cc, firtsname, lastname, email, password } = req?.body;
 
   // upload image in cloudinary
-  const cloudImage = await uploadImage(req?.files?.image_profile?.tempFilePath);
+  const cloudImage = await uploadImage(req?.files?.image_url?.tempFilePath);
   const { public_id, url } = cloudImage;
 
   const hash = await hashPassword(password); // generate hash
 
+  // shearch id_image in db
+  const [data] = await poll.query(
+    "SELECT id_image FROM users WHERE id = (?)",
+    id
+  );
+
   try {
+    // shearch image in db and delete in cloudinary
+    await deleteImageCloud(data);
+
     const [rows] = await poll.query(
       `UPDATE users SET cc = IFNULL(?,cc), firtsname = IFNULL(?,firtsname), lastname = IFNULL(?,lastname), 
-      id_image = IFNULL(?,id_image), image_profile = IFNULL(?,image_profile) ,email = IFNULL(?,email), 
+      id_image = IFNULL(?,id_image), image_url = IFNULL(?,image_url) ,email = IFNULL(?,email), 
       password = IFNULL(?,password) WHERE id = (?)`,
       [cc, firtsname, lastname, public_id, url, email, hash, id]
     );
@@ -85,7 +95,7 @@ const updateUsers = async (req, res) => {
     }
 
     // delete image in folder local 'uploads'
-    await fs.unlink(req?.files?.image_profile?.tempFilePath);
+    await fs.unlink(req?.files?.image_url?.tempFilePath);
 
     res.status(202).json({ result: "user update successfully" });
   } catch (err) {
@@ -96,25 +106,17 @@ const updateUsers = async (req, res) => {
 // Delete user in database
 const deleteUsers = async (req, res) => {
   const { id } = req?.params;
-  try {
-    // search id_image in database
-    const [data] = await poll.query(
-      "SELECT id_image FROM users WHERE id = (?)",
-      id
-    );
 
-    // validate if the user has an image
-    const id_image = data?.[0]?.id_image;
-
-    if (typeof id_image !== "object") {
-      // delete image in cloudinary
-      await deleteImage(id_image);
-    }
-  } catch (err) {
-    res.status(400).send({ message: err.message });
-  }
+  // shearch id_image in db
+  const [data] = await poll.query(
+    "SELECT id_image FROM users WHERE id = (?)",
+    id
+  );
 
   try {
+    // shearch image in db and delete in cloudinary
+    await deleteImageCloud(data);
+
     // delete user in database by id
     const [rows] = await poll.query("DELETE FROM users WHERE id = (?)", id);
 
