@@ -3,24 +3,26 @@ import Ajv from "ajv";
 import addFormat from "ajv-formats";
 import addError from "ajv-errors";
 
-const propertySchema = Type.Object(
+const propertySchemaUpdate = Type.Object(
   {
-    type: Type.String({
-      minLength: 5,
-      maxLength: 35,
-      errorMessage: {
-        type: "The type must be a string",
-        minLength: "The type must have a minimum length of 5",
-        maxLength: "The type must have a maximum length of 35",
-      },
-    }),
+    type: Type.Optional(
+      Type.String({
+        minLength: 5,
+        maxLength: 35,
+        errorMessage: {
+          type: "The type must be a string",
+          minLength: "The type must have a minimum length of 5",
+          maxLength: "The type must have a maximum length of 35",
+        },
+      })
+    ),
     image_property: Type.Optional(
       Type.String({
-        minLength: 150,
+        minLength: 140,
         maxLength: 200,
         errorMessage: {
           type: "The type must be a string",
-          minLength: "The type must have a minimum length of 150",
+          minLength: "The type must have a minimum length of 140",
           maxLength: "The type must have a maximum length of 200",
         },
       })
@@ -36,24 +38,28 @@ const propertySchema = Type.Object(
         },
       })
     ),
-    area: Type.Number({
-      minimum: 1,
-      maximum: 100,
-      errorMessage: {
-        type: "The type must be a Integer",
-        minimum: "The type must have a minimum length of 1",
-        maximum: "The type must have a maximum length of 10",
-      },
-    }),
-    price: Type.Integer({
-      minimum: 80000.0,
-      maximum: 100000000.0,
-      errorMessage: {
-        type: "The type must be a Integer",
-        minimum: "The type must have a minimum length of 80.000000",
-        maximum: "The type must have a maximum length of 100.000000000",
-      },
-    }),
+    area: Type.Optional(
+      Type.Number({
+        minimum: 1,
+        maximum: 100,
+        errorMessage: {
+          type: "The type must be a Integer",
+          minimum: "The type must have a minimum length of 1",
+          maximum: "The type must have a maximum length of 100",
+        },
+      })
+    ),
+    price: Type.Optional(
+      Type.Integer({
+        minimum: 80000.0,
+        maximum: 100000000.0,
+        errorMessage: {
+          type: "The type must be a Integer",
+          minimum: "The type must have a minimum length of 80.000000",
+          maximum: "The type must have a maximum length of 100.000000000",
+        },
+      })
+    ),
     characteristic: Type.Optional(
       Type.String({
         minLength: 10,
@@ -65,15 +71,17 @@ const propertySchema = Type.Object(
         },
       })
     ),
-    id_states: Type.Integer({
-      minimum: 1,
-      maximum: 3,
-      errorMessage: {
-        type: "The type id_states is format integer",
-        minimum: "The type must have a minimum length of 1",
-        maximum: "The type must have a maximum length of 1",
-      },
-    }),
+    id_states: Type.Optional(
+      Type.Integer({
+        minimum: 1,
+        maximum: 3,
+        errorMessage: {
+          type: "The type id_states is format integer",
+          minimum: "The type must have a minimum length of 1",
+          maximum: "The type must have a maximum length of 3",
+        },
+      })
+    ),
   },
   {
     additionalProperties: false,
@@ -91,7 +99,7 @@ const ajv = new Ajv({ allErrors: true });
 addFormat(ajv, ["email"]);
 addError(ajv);
 
-const validate = ajv.compile(propertySchema);
+const validate = ajv.compile(propertySchemaUpdate);
 
 /**
  * This middleware is responsible for verifying if the user inserted
@@ -102,11 +110,11 @@ const validate = ajv.compile(propertySchema);
  * @returns Error message or access the next method.
  */
 
-const propertyValidate = (req, res, next) => {
+const propertyUpdateValidate = (req, res, next) => {
   // iterate the object
   for (let [key, value] of Object.entries(req?.body)) {
     let toNumber = ["area", "price", "id_states"];
-
+    
     // check if exists the key in the array
     if (toNumber.includes(key)) {
       // transform the value to number
@@ -125,4 +133,4 @@ const propertyValidate = (req, res, next) => {
   next();
 };
 
-export { propertyValidate };
+export { propertyUpdateValidate };
