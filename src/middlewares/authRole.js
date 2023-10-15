@@ -11,25 +11,19 @@ const authRole =
     const { roldb } = req?.dataUsuario;
 
     try {
-      optionsRoleBest.forEach((role) => {
-        const isBoolean = optionsRole.includes(role);
+      // check if the role is allowed
+      const isAllowed = optionsRoleBest.some((role) =>
+        optionsRole.includes(role)
+      );
 
-        if (!isBoolean) {
-          throw new Error(`This role ${role} not have permissions`);
-        }
+      // the role is equal to the roledb
+      const isBoolean = optionsRoleBest.filter((role) => role === roldb);
 
-        if (optionsRoleBest.length !== 1) {
-          if (role) {
-            console.log(`Access to ${role} is not allowed`);
-          }
-        }
-
-        if (role !== roldb) {
-          throw new Error(`This role ${role} not have permissions`);
-        }
-      });
-
-      next();
+      if (isAllowed && isBoolean) {
+        next();
+      } else {
+        throw new Error(`One or more roles do not have permissions.`);
+      }
     } catch (err) {
       res.status(404).json({ error: err.message });
     }
