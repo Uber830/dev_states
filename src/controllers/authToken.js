@@ -49,7 +49,7 @@ const authTokenlogin = async (req, res) => {
       throw new Error("Invalid registered of user");
     }
 
-    res.send({ jwt });
+    res.status(200).json({ jwt });
   } catch (err) {
     res.status(401).send(`Invalid login credentials ${err}`);
   }
@@ -80,9 +80,9 @@ const registerUser = async (req, res) => {
     );
 
     if (rows?.affectedRows != 1) return res.sendStatus(404);
-    res.status(201).send("Created");
+    res.status(201).send("Created successfully");
   } catch (err) {
-    res.status(404).send(err.message);
+    res.status(500).send(err.message);
   }
 };
 
