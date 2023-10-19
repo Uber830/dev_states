@@ -4,12 +4,14 @@ import { hashPassword } from "../helpers/verifypassword.js";
 // Search all users in the database
 const getAllUsers = async (req, res) => {
   try {
-    const [data] = await poll.query("SELECT * FROM users"); // not returning a password
+    const [data] = await poll.query(
+      "SELECT id,cc,firtsname,lastname,image_profile,email,id_role,state,date_create,date_update FROM users"
+    ); // not returning a password
 
     if (data.length <= 0)
       return res.status(404).send("Not found the search in users");
 
-    res.status(200).json({ users: data });
+    res.status(200).send(data);
   } catch (erro) {
     res.status(404).json({ message: [] });
   }
@@ -21,7 +23,7 @@ const getIdUsers = async (req, res) => {
 
   try {
     const [data] = await poll.query(
-      "SELECT * FROM users WHERE id = (?)",
+      "SELECT cc,firtsname,lastname,image_profile,email,id_role,state,date_create,date_update FROM users WHERE id = (?) AND state = 'activo'",
       Number(id)
     );
 
@@ -29,7 +31,7 @@ const getIdUsers = async (req, res) => {
       throw new Error("Not contend users");
     }
 
-    res.status(200).json({ users: data });
+    res.status(200).send(data);
   } catch (err) {
     res.status(404).json({ message: [] });
   }
@@ -37,14 +39,14 @@ const getIdUsers = async (req, res) => {
 
 // Create a new user
 const createUsers = async (req, res) => {
-  const { cc, firtsname, lastname, email, password } = req?.body;
+  const { cc, firtsname, lastname, email, password ,id_role } = req?.body;
 
   try {
     const hash = await hashPassword(password); // generate hash
 
     const [rows] = await poll.query(
-      "INSERT INTO users (cc,firtsname,lastname,email,password) VALUES (?,?,?,?,?)",
-      [cc, firtsname, lastname, email, hash]
+      "INSERT INTO users (cc,firtsname,lastname,email,password,id_role) VALUES (?,?,?,?,?,?)",
+      [cc, firtsname, lastname, email, hash, id_role]
     );
 
     if (rows.affectedRows != 1) {
@@ -60,15 +62,15 @@ const createUsers = async (req, res) => {
 // Update user profile
 const updateUsers = async (req, res) => {
   const { id } = req?.params;
-  const { cc, firtsname, lastname, email, password } = req?.body;
+  const { cc, firtsname, lastname, image_profile, email, password } = req?.body;
 
   const hash = await hashPassword(password); // generate hash
 
   try {
     const [rows] = await poll.query(
       `UPDATE users SET cc = IFNULL(?,cc), firtsname = IFNULL(?,firtsname), lastname = IFNULL(?,lastname), 
-      email = IFNULL(?,email), password = IFNULL(?,password) WHERE id = (?)`,
-      [cc, firtsname, lastname, email, hash, id]
+      image_profile = IFNULL(?,image_profile) ,email = IFNULL(?,email), password = IFNULL(?,password) WHERE id = (?)`,
+      [cc, firtsname, lastname, image_profile, email, hash, id]
     );
 
     if (rows.affectedRows !== 1) {
@@ -86,7 +88,10 @@ const deleteUsers = async (req, res) => {
   const { id } = req?.params;
 
   try {
-    const [rows] = await poll.query("DELETE FROM users WHERE id = (?)", id);
+    const [rows] = await poll.query(
+      "UPDATE users SET state = 'eliminado' WHERE id = (?)",
+      id
+    );
 
     if (rows?.affectedRows !== 1) {
       throw new Error("User not deleted, exist warnings");
@@ -94,7 +99,7 @@ const deleteUsers = async (req, res) => {
 
     res.sendStatus(204);
   } catch (err) {
-    res.status(404).send({ message: err.message });
+    res.status(500).send({ message: err.message });
   }
 };
 

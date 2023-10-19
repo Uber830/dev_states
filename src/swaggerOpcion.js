@@ -8,8 +8,8 @@ export const options = {
     },
     servers: [
       {
-        URL: "http://localhost:3019",
-        URL: "https://dev-states.onrender.com"
+        url: "https://dev-states.onrender.com",
+        url: "http://localhost:3019"
       }
     ]
   },
