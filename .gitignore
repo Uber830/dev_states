@@ -1,0 +1,8 @@
+# dependencies installed with npm
+node_modules
+
+# dotenv environment variables file
+.env
+
+# folder to store the resouces for the project with images, gifs, etc.
+uploads
