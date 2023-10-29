@@ -15,11 +15,11 @@ export const options = {
     },
     servers: [
       {
-        url: `${process.env.DEVELOPMENT}:${process.env.PORT_SERVER}`,
+        url: `${process.env.DEVELOPMENT || 'http://localhost'}:${process.env.PORT_SERVER || 3000}`,
         description: "Development server",
       },
       {
-        url: `${process.env.PRODUCTION}`,
+        url: `${process.env.PRODUCTION || 'https://dev-states.onrender.com'}`,
         description: "Production server",
       }
     ]
