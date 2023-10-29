@@ -24,8 +24,8 @@ const authTokenRouter = Router();
  *         - email
  *         - password
  *       example:
- *         email: admin@ejemplo.com
- *         password: password123
+ *         email: juanes@ejemplo.com
+ *         password: example123
  */
 
 /**
@@ -53,8 +53,8 @@ const authTokenRouter = Router();
  *      - password
  *      - id_role
  *    example:
- *      firtsname: juan
- *      email: juan@ejemplo.com
+ *      firtsname: juanes
+ *      email: juanes@ejemplo.com
  *      password: example123
  *      id_role: 3
  */

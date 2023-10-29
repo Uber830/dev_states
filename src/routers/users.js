@@ -6,7 +6,7 @@ import { userValidate } from "../DTO/userValidate.js";
 import { userValidateCreatings } from "../DTO/userValidateCreatings.js";
 import { authRole } from "../middlewares/authRole.js";
 import { validateUploadFiles } from "../middlewares/validateUploadFiles.js";
-import { propertyUpdateValidate } from "../middlewares/validatePropertyUpdate.js";
+//import { propertyUpdateValidate } from "../middlewares/validatePropertyUpdate.js";
 
 import fileUpload from "express-fileupload";
 
@@ -32,9 +32,9 @@ const userRouter = Router();
  *        lastname: 
  *          type: string
  *          description: lastname of the user
- *        image_profile:
- *          type: string
- *          description: image profile of the user
+ *        image_url:
+ *         type: string
+ *         description: image profile of the user
  *        email: 
  *          type: string   
  *          description: Email of the user
@@ -55,15 +55,13 @@ const userRouter = Router();
  *        cc: null
  *        firtsname: uberman
  *        lastname: null
- *        image_profile: null
+ *        image_url: http://localhost:3000/uploads/1628391554420-uberman.jpg
  *        email: example@ejemplo.com
  *        id_role: 2
  *        date_create: 2023-08-08T04:25:54.000Z
  *        date_update: 2023-08-08T04:25:54.000Z
  */
 
-// FIXME: acomodar ideas para poder tratar images, que el cliente nos envie 
-// si desde el get o update, las dos y tambien el 'id_role'.
 /**
  * @swagger
  * components:
@@ -71,19 +69,10 @@ const userRouter = Router();
  *    userCreate:
  *      type: object
  *      properties:
- *        cc: 
- *          type: string
- *          description: Cc of the user
  *        firtsname: 
  *          type: string
  *          description: Name of the user
- *        lastname: 
- *          type: string
- *          description: lastname of the user
- *        image_profile:
- *          type: number
- *          description: image profile of the user
- *        email: 
+ *        email:  
  *          type: string   
  *          description: Email of the user to update
  *        password: 
@@ -96,13 +85,46 @@ const userRouter = Router();
  *         - firtsname 
  *         - email
  *         - password
+ *         - id_role
  *      examples:
- *         cc: null
- *         firtsname: name
- *         lastname: null
- *         image_profile: null
- *         email: example@ejemplo.com
+ *         firtsname: juanes
+ *         email: juanes@ejemplo.com
  *         password: password123
+ *         id_role: 2
+ */
+
+/**
+ * This component is responsible for updating the results of a user
+ * @swagger
+ * components:
+ *  schemas:
+ *   userUpdate:
+ *    type: object
+ *    properties:
+ *     cc:
+ *      type: integer
+ *      example: " "
+ *      description: cc of the user
+ *     firtsname:
+ *      type: string
+ *      example: " "
+ *      description: firtsname of the user
+ *     lastname:
+ *      type: string
+ *      example: " "
+ *      description: lastname of the user
+ *     image_url:
+ *      type: string
+ *      format: binary
+ *      description: image profile of the user
+ *     email:
+ *      type: string
+ *      example: " "
+ *      description: email address of the user
+ *     password:
+ *      type: string
+ *      example: " "
+ *      description: password of the user
  */
 
 /**
@@ -127,9 +149,9 @@ const userRouter = Router();
  *        - email
  *        - id_role
  *      examples:
- *        firtsname: uberman
- *        email: example@ejemplo.com
- *        id_role: 2
+ *        firtsname: juanes
+ *        email: juanes@ejemplo.com
+ *        id_role: 3
  */
 
 /**
@@ -228,7 +250,7 @@ userRouter.get("/:id", verifyAuth, getIdUsers);
  */
 
 userRouter.post("/create", verifyAuth, authRole(["admin"]), userValidateCreatings, createUsers);
-// FIXME: agregar image_profile en la documentacion de swagger
+
 /**
  * @swagger
  * /api/users/update/{id}:
@@ -248,9 +270,9 @@ userRouter.post("/create", verifyAuth, authRole(["admin"]), userValidateCreating
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#components/schemas/userCreate'        
+ *             $ref: '#components/schemas/userUpdate'        
  *     responses:
  *       200:
  *         description: Returns message of updated with existing 

@@ -6,14 +6,12 @@ import addFormats from "ajv-formats";
 const userUpdateSchema = Type.Object(
   {
     cc: Type.Optional(
-      Type.Number({
-        minimum: 10,
-        maximum: 10000000000,
+      Type.String({
+        pattern: "^[0-9]+$",
         errorMessage: {
-        type: "The type must be a Integer",
-        minimum: "minima longitud 10000000000",
-        maximum: "maxima longitud 10000000000",
-      },
+          type: "The type must be a string character",
+          pattern: "Only numbers are allowed"
+        },
       })
     ),
     firtsname: Type.Optional(
@@ -92,12 +90,12 @@ const validate = ajv.compile(userUpdateSchema);
 
 const userValidate = (req, res, next) => {
   // Transform the data to the correct type
-  for (let [key, value] of Object.entries(req?.body)) {
+/*   for (let [key, value] of Object.entries(req?.body)) {
     
     if (key === "cc") {
       req.body[key] = Number(value);
     }
-  }
+  } */
 
   const isUserByUpdate = validate(req?.body);
 

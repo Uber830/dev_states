@@ -26,7 +26,7 @@ const getIdUsers = async (req, res) => {
 
   try {
     const [data] = await poll.query(
-      "SELECT cc,firtsname,lastname,image_url,email,id_role,date_create,date_update FROM users WHERE id = (?)",
+      "SELECT id,cc,firtsname,lastname,image_url,email,id_role,date_create,date_update FROM users WHERE id = (?)",
       Number(id)
     );
 
@@ -87,7 +87,7 @@ const updateUsers = async (req, res) => {
       `UPDATE users SET cc = IFNULL(?,cc), firtsname = IFNULL(?,firtsname), lastname = IFNULL(?,lastname), 
       id_image = IFNULL(?,id_image), image_url = IFNULL(?,image_url) ,email = IFNULL(?,email), 
       password = IFNULL(?,password) WHERE id = (?)`,
-      [cc, firtsname, lastname, public_id, url, email, hash, id]
+      [Number(cc), firtsname, lastname, public_id, url, email, hash, id]
     );
 
     if (rows.affectedRows !== 1) {
