@@ -5,7 +5,7 @@ import addError from "ajv-errors";
 
 const propertySchemaUpdate = Type.Object(
   {
-    type: Type.Optional(
+    type: Type.Union([
       Type.String({
         minLength: 5,
         maxLength: 35,
@@ -14,20 +14,10 @@ const propertySchemaUpdate = Type.Object(
           minLength: "The type must have a minimum length of 5",
           maxLength: "The type must have a maximum length of 35",
         },
-      })
-    ),
-    image_property: Type.Optional(
-      Type.String({
-        minLength: 140,
-        maxLength: 200,
-        errorMessage: {
-          type: "The type must be a string",
-          minLength: "The type must have a minimum length of 140",
-          maxLength: "The type must have a maximum length of 200",
-        },
-      })
-    ),
-    address: Type.Optional(
+      }),
+      Type.Null(),
+    ]),
+    address: Type.Union([
       Type.String({
         minLength: 5,
         maxLength: 80,
@@ -36,9 +26,10 @@ const propertySchemaUpdate = Type.Object(
           minLength: "The type must have a minimum length of 5",
           maxLength: "The type must have a maximum length of 30",
         },
-      })
-    ),
-    area: Type.Optional(
+      }),
+      Type.Null(),
+    ]),
+    area: Type.Union([
       Type.Number({
         minimum: 1,
         maximum: 100,
@@ -47,9 +38,10 @@ const propertySchemaUpdate = Type.Object(
           minimum: "The type must have a minimum length of 1",
           maximum: "The type must have a maximum length of 100",
         },
-      })
-    ),
-    price: Type.Optional(
+      }),
+      Type.Null(),
+    ]),
+    price: Type.Union([
       Type.Integer({
         minimum: 80000.0,
         maximum: 100000000.0,
@@ -58,9 +50,10 @@ const propertySchemaUpdate = Type.Object(
           minimum: "The type must have a minimum length of 80.000000",
           maximum: "The type must have a maximum length of 100.000000000",
         },
-      })
-    ),
-    characteristic: Type.Optional(
+      }),
+      Type.Null(),
+    ]),
+    characteristic: Type.Union([
       Type.String({
         minLength: 10,
         maxLength: 255,
@@ -69,9 +62,10 @@ const propertySchemaUpdate = Type.Object(
           minLength: "The type must have a minimum length of 10",
           maxLength: "The type must have a maximum length of 255",
         },
-      })
-    ),
-    id_states: Type.Optional(
+      }),
+      Type.Null(),
+    ]),
+    id_states: Type.Union([
       Type.Integer({
         minimum: 1,
         maximum: 3,
@@ -80,17 +74,15 @@ const propertySchemaUpdate = Type.Object(
           minimum: "The type must have a minimum length of 1",
           maximum: "The type must have a maximum length of 3",
         },
-      })
-    ),
+      }),
+      Type.Null(),
+    ]),
   },
   {
     additionalProperties: false,
     errorMessage: {
       type: "This has to be a object",
       additionalProperties: "The format from object is not valid",
-      required: {
-        id_states: "The is_states is request",
-      },
     },
   }
 );
@@ -114,12 +106,15 @@ const propertyUpdateValidate = (req, res, next) => {
   // iterate the object
   for (let [key, value] of Object.entries(req?.body)) {
     let toNumber = ["area", "price", "id_states"];
-    
+
     // check if exists the key in the array
     if (toNumber.includes(key)) {
       // transform the value to number
       req.body[key] = Number(value);
     }
+
+    // check if the value is empty
+    if (value === "") req.body[key] = null;
   }
 
   const isObjectValidate = validate(req?.body);

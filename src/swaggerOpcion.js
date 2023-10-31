@@ -3,7 +3,7 @@ export const options = {
     openapi: "3.0.0",
     info: {
       title: "Dev_states",
-      version: "1.0.1",
+      version: "1.0.2",
       description: `<h3>This is a REST API application made with Express. 
       It retrieves data from the database and returns it to the client (Postman, Insomnia, etc.).
       <br>
@@ -15,11 +15,11 @@ export const options = {
     },
     servers: [
       {
-        url: `${process.env.DEVELOPMENT || 'http://localhost'}:${process.env.PORT_SERVER || 3000}`,
+        url: `${process.env.DEVELOPMENT}:${process.env.PORT_SERVER}`,
         description: "Development server",
       },
       {
-        url: `${process.env.PRODUCTION || 'https://dev-states.onrender.com'}`,
+        url: `${process.env.PRODUCTION}`,
         description: "Production server",
       }
     ]

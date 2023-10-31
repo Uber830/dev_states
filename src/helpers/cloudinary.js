@@ -15,6 +15,10 @@ cloudinary.config({
 
 // upload of image
 export async function uploadImage(filePath) {
+  if (!filePath) {
+    return { public_id: null, url: null };
+  }
+
   return await cloudinary.uploader.upload(filePath, {
     folder: "dev-states",
   });
