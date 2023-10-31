@@ -14,7 +14,7 @@ const propertySchema = Type.Object(
         maxLength: "The type must have a maximum length of 35",
       },
     }),
-    image_property: Type.Optional(
+    image_url: Type.Optional(
       Type.String({
         minLength: 150,
         maxLength: 200,
@@ -27,7 +27,7 @@ const propertySchema = Type.Object(
     ),
     address: Type.Optional(
       Type.String({
-        minLength: 5,
+        minLength: 0,
         maxLength: 80,
         errorMessage: {
           type: "The type must be a string",
@@ -56,7 +56,7 @@ const propertySchema = Type.Object(
     }),
     characteristic: Type.Optional(
       Type.String({
-        minLength: 10,
+        minLength: 0,
         maxLength: 255,
         errorMessage: {
           type: "The type characteristic is format string",

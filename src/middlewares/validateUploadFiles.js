@@ -3,8 +3,8 @@ import { isExtension, fileLimit } from "../helpers/isUploadImage.js";
 // middleware what validate the long of the name and size
 export const validateUploadFiles = (req, res, next) => {
   try {
-  
-    if (!req?.files) throw new Error("No files were uploaded.");
+    // image optional
+    if (!req?.files) return next();
 
     // validate extension image
     if (typeof isExtension(req?.files) !== "string")
@@ -13,10 +13,7 @@ export const validateUploadFiles = (req, res, next) => {
     // check if the file size is valid and the name length
     if (typeof fileLimit !== "function")
       throw new Error(
-        fileLimit(
-          req?.files?.image_url?.size,
-          req?.files?.image_url?.name
-        )
+        fileLimit(req?.files?.image_url?.size, req?.files?.image_url?.name)
       );
 
     next();

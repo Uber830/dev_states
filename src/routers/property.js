@@ -24,7 +24,10 @@ const routerPro = Router();
  *       type:
  *         type: string
  *         description: type of property
- *       image_property:
+ *       id_image:
+ *         type: string
+ *         description: id image of the property
+ *       image_url:
  *         type: string
  *         description: Image the property for business
  *       address:
@@ -60,6 +63,10 @@ const routerPro = Router();
  *     type:
  *       type: string
  *       description: Type of the property to post
+ *     image_url:
+ *       type: string
+ *       format: binary
+ *       description: Image the property for business
  *     address:
  *       type: string
  *       description: Address of the property
@@ -73,18 +80,9 @@ const routerPro = Router();
  *       type: string
  *       description: description all characteristic of property
  *     id_states:
+ *       enum: [1,2,3]
  *       type: integer
  *       description: Id states of property
- *     image_property:
- *       type: string
- *       description: Image the property for business
- *  example:
- *   type: Cabaña
- *   address: Villa marcela carrera 56 #43-10 Funza - Cundinamarca
- *   area: 48
- *   price: 82500
- *   characteristic: El piso esta en perfecto estado,depósito, alacena,garaje para un auto.
- *   id_states: 1
  */
 
 /**
@@ -151,7 +149,7 @@ routerPro.get("/all", verifyAuth, getAllProperty);
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#components/schemas/responseProperties'      
+ *                 $ref: '#components/schemas/responseProperty'      
  *       500:
  *        description: some server error
  */
@@ -169,7 +167,7 @@ routerPro.get("/:id", verifyAuth, getIdProperty);
  *     requestBody:
  *       required: true
  *       content:
- *        application/json:
+ *        multipart/form-data:
  *          schema:
  *            $ref: '#components/schemas/propertyResponse'
  *     responses:
@@ -206,12 +204,12 @@ routerPro.post("/create", verifyAuth, authRole(["vendor"]), fileUpload({
  *     requestBody:
  *       required: true
  *       content:      
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *            $ref: '#components/schemas/propertyResponse'
  *     responses:
  *       201:
- *         description: object with array of one properties
+ *         description: menssage of update property
  *         content:
  *           text/plain:
  *            schema:

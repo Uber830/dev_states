@@ -1,5 +1,5 @@
 import { poll } from "../../database/dbmysql.js";
-import { uploadImage, deleteImage } from "../helpers/cloudinary.js";
+import { uploadImage } from "../helpers/cloudinary.js";
 import fs from "fs-extra";
 import { deleteImageCloud } from "../helpers/deleteImageCloud.js";
 
@@ -87,8 +87,8 @@ const updateProperty = async (req, res) => {
       throw new Error("Invalid query parameters for update");
     }
 
-    // delete image in folder local 'uploads'
-    await fs.unlink(req?.files?.image_url?.tempFilePath);
+    //if exists delete image in folder local 'uploads'
+    if (req?.files) await fs.unlink(req?.files?.image_url?.tempFilePath);
 
     res.status(201).json({ property: "Update property successfully" });
   } catch (err) {
